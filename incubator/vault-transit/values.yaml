@@ -1,7 +1,9 @@
 # Default values for vault.
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
-replicaCount: 1
+fullnameOverride: "vault-transit"
+
+replicaCount: 3
 ## The name of the secret to use if pulling images from a private registry.
 # imagePullSecret:
 image:
@@ -44,8 +46,8 @@ consulAgent:
   #   memory: 128Mi
 service:
   name: vault
-  type: ClusterIP
-  # type: LoadBalancer
+  # type: ClusterIP
+  type: LoadBalancer
   # Assign a static LB IP
   # loadBalancerIP: 203.0.113.32
   loadBalancerSourceRanges: []
@@ -56,8 +58,8 @@ service:
   # clusterExternalPort: 8201
   clusterPort: 8101
   # clusterIP: None
-  annotations: {}
-  #   cloud.google.com/load-balancer-type: "Internal"
+  annotations: 
+    cloud.google.com/load-balancer-type: "Internal"
   #
   # An example using type:loadbalancer and AWS internal ELB on kops
   # type: LoadBalancer
@@ -154,13 +156,11 @@ vault:
   # section below is not used to configure Vault. See
   # https://www.vaultproject.io/intro/getting-started/dev-server.html for more
   # information.
-  dev: true
+  dev: false
   # Configure additional environment variables for the Vault containers
   extraEnv:
-    - name: VAULT_ADDR
-      value: "http://127.0.0.1:8100"
-    - name: VAULT_API_ADDR
-      value: "http://127.0.0.1:8100"
+    - name: GOOGLE_APPLICATION_CREDENTIALS
+      value: "/vault/file/service-acc.json"
   extraContainers: []
   ## Additional containers to be added to the Vault pod
   # extraContainers:
@@ -238,7 +238,8 @@ vault:
       #   secret_key: ""
       #   endpoint: "" # When not using AWS S3
       #
-      # gcs:
-      #   bucket: ""
+      gcs:
+        bucket: "cd-vault-transit"
+        ha_enabled: "true"
       #   # Use a custom secret to mount this file.
       #   credentials_file: ""

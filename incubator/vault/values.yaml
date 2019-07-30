@@ -1,6 +1,8 @@
 # Default values for vault.
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
+fullnameOverride: "vault-server"
+
 replicaCount: 3
 ## The name of the secret to use if pulling images from a private registry.
 # imagePullSecret:
@@ -154,13 +156,9 @@ vault:
   # section below is not used to configure Vault. See
   # https://www.vaultproject.io/intro/getting-started/dev-server.html for more
   # information.
-  dev: true
+  dev: false
   # Configure additional environment variables for the Vault containers
   extraEnv:
-    - name: VAULT_ADDR
-      value: "http://127.0.0.1:8200"
-    - name: VAULT_API_ADDR
-      value: "http://127.0.0.1:8200"
     - name: GOOGLE_APPLICATION_CREDENTIALS
       value: "/vault/file/service-acc.json"
   extraContainers: []
@@ -225,8 +223,7 @@ vault:
     # See https://www.vaultproject.io/docs/configuration/storage/ for storage backends
     seal: 
       transit: 
-        address: 'http://vault-transit-vault:8100'
-        token: 's.Ktav5Fdhu3p8KGoCUd8Z8sCa'
+        address: 'http://vault-transit-svc:8100'
         disable_renewal: 'false'
         key_name: 'autounseal'
         mount_path: 'transit/'
@@ -250,7 +247,8 @@ vault:
       #   secret_key: ""
       #   endpoint: "" # When not using AWS S3
       #
-      # gcs:
-      #   bucket: ""
+      gcs:
+        bucket: "cd-vault-server"
+        ha_enabled: "true"
       #   # Use a custom secret to mount this file.
       #   credentials_file: ""

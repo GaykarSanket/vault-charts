@@ -91,6 +91,10 @@ spec:
             valueFrom:
               fieldRef:
                 fieldPath: status.podIP
+          - name: VAULT_ADDR
+            value: "http://$(POD_IP):8100"
+          - name: VAULT_API_ADDR
+            value: "http://$(POD_IP):8100"
           - name: VAULT_CLUSTER_ADDR
             value: "https://$(POD_IP):8101"
           - name: VAULT_LOG_LEVEL
@@ -101,6 +105,8 @@ spec:
         resources:
 {{ toYaml .Values.resources | indent 10 }}
         volumeMounts:
+        - name: vault-svc-acc-cred
+          mountPath: /vault/file/
         - name: vault-config
           mountPath: /vault/config/
         - name: vault-root
@@ -185,6 +191,9 @@ spec:
       {{- end }}
       serviceAccountName: {{ template "vault.serviceAccountName" . }}
       volumes:
+        - name: vault-svc-acc-cred
+          configMap:
+            name: vault-svc-acc-config
         - name: vault-config
           configMap:
             name: {{ if .Values.vault.existingConfigName }}{{ .Values.vault.existingConfigName }}{{- else }}"{{ template "vault.fullname" . }}-config"{{- end }}
